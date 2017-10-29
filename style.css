@@ -20,22 +20,10 @@ body {
   width: auto;
   height: auto;
 }
-
-
 .photo-user {
   padding-top: 4px;
   font-size: 9px;
   font-weight: bold;
-}
-.photo-comments {
-  margin-top: 6px;
-}
-.photo-comment {
-  font-size: 8px;
-}
-.comment-username {
-  font-weight: bold;
-  padding-right: 4px;
 }
 
 
@@ -53,6 +41,12 @@ body {
   padding: 10px 10px 10px 10px;
   border: 1px #555 solid;
   background-color: white;
+}
+
+.closebutton {
+  position: absolute;
+  right: 2px;
+  top: -4px;
 }
 
 .shadowbox {
@@ -74,8 +68,18 @@ body {
 }
 
 
-.modal-user {
+.modal-stats {
   padding-top: 4px;
   font-size: 11px;
   font-weight: bold;
+}
+.modal-comments-container {
+  padding-top: 4px;
+}
+.modal-comment {
+  font-size: 8px;
+}
+.modal-comment-username {
+  font-weight: bold;
+  padding-right: 4px;
 }

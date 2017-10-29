@@ -3,7 +3,7 @@ module Main exposing (..)
 import List exposing (map, repeat, head)
 import Maybe exposing (Maybe, withDefault)
 import Html exposing (beginnerProgram)
-import Html exposing (Html, node, text, div, img)
+import Html exposing (Html, node, text, div, span, img)
 import Html.Attributes exposing (class, src, rel, href)
 import DataModel exposing (Comment, Photo, examplePhotos)
 
@@ -55,14 +55,25 @@ photoItem photo =
 
 
 photoModal : Photo -> Html Msg
-photoModal openedPhoto =
+photoModal photo =
     div []
         [ div [ class "modal" ]
-            [ img [ src openedPhoto.url ] []
-            , div [ class "modal-user" ]
-                [ text openedPhoto.user ]
+            [ div [ class "closebutton" ] [ text "×" ]
+            , img [ src photo.url ] []
+            , div [ class "modal-stats" ]
+                [ text (photo.user ++ " / " ++ photo.location) ]
+            , div [ class "modal-comments-container" ]
+                (map modalComment photo.comments)
             ]
         , div [ class "shadowbox" ] []
+        ]
+
+
+modalComment : Comment -> Html Msg
+modalComment comment =
+    div [ class "modal-comment" ]
+        [ span [ class "modal-comment-username" ] [ text comment.user ]
+        , text comment.message
         ]
 
 
