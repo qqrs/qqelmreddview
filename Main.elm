@@ -1,23 +1,28 @@
 module Main exposing (..)
 
+import Debug exposing (log)
 import List exposing (map, repeat, head, append)
 import Maybe exposing (Maybe, withDefault)
 import Html exposing (beginnerProgram)
-import Html exposing (Html, node, text, div, span, img, button)
-import Html.Attributes exposing (class, src, rel, href)
-import Html.Events exposing (onClick)
+import Html exposing (Html, node, text, div, span, img, button, input)
+import Html.Attributes exposing (class, src, rel, href, placeholder)
+import Html.Events exposing (onClick, onSubmit, onInput, on, targetValue)
 import DataModel exposing (Comment, Photo, addComment, examplePhotos, exampleComment)
+import Json.Decode as Json
 
 
 type Msg
     = OpenPhoto Photo
     | ClosePhoto
     | LoadMoreComments
+    | SubredditInputChange String
+    | SubredditInputSubmit
 
 
 type alias Model =
     { photos : List Photo
     , openedPhoto : Maybe Photo
+    , subredditInput : String
     }
 
 
@@ -25,6 +30,7 @@ model : Model
 model =
     { photos = examplePhotos
     , openedPhoto = Nothing
+    , subredditInput = "OldSchoolCool"
     }
 
 
@@ -35,10 +41,23 @@ view model =
             model.openedPhoto |> Maybe.map photoModal |> maybeHtml
     in
         div []
-            [ photoGrid model.photos
+            [ searchHeader
+            , photoGrid model.photos
             , modalHtml
             , stylesheet "style.css"
             ]
+
+
+searchHeader : Html Msg
+searchHeader =
+    div [ class "header" ]
+        [ input
+            [ placeholder "subreddit"
+            , onInput SubredditInputChange
+            , onSubmit SubredditInputSubmit
+            ]
+            []
+        ]
 
 
 photoGrid : List Photo -> Html Msg
@@ -105,6 +124,12 @@ update msg model =
 
                 Just photo ->
                     { model | openedPhoto = Just (addComment exampleComment photo) }
+
+        SubredditInputChange text ->
+            { model | subredditInput = text }
+
+        SubredditInputSubmit ->
+            model
 
 
 stylesheet url =
