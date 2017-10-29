@@ -19,6 +19,11 @@ type alias Photo =
     }
 
 
+addComment : Comment -> Photo -> Photo
+addComment comment photo =
+    { photo | comments = photo.comments ++ [ comment ] }
+
+
 examplePhoto : Photo
 examplePhoto =
     { user = "qqrs"

@@ -1,17 +1,18 @@
 module Main exposing (..)
 
-import List exposing (map, repeat, head)
+import List exposing (map, repeat, head, append)
 import Maybe exposing (Maybe, withDefault)
 import Html exposing (beginnerProgram)
-import Html exposing (Html, node, text, div, span, img)
+import Html exposing (Html, node, text, div, span, img, button)
 import Html.Attributes exposing (class, src, rel, href)
 import Html.Events exposing (onClick)
-import DataModel exposing (Comment, Photo, examplePhotos)
+import DataModel exposing (Comment, Photo, addComment, examplePhotos, exampleComment)
 
 
 type Msg
     = OpenPhoto Photo
     | ClosePhoto
+    | LoadMoreComments
 
 
 type alias Model =
@@ -64,7 +65,10 @@ photoModal photo =
             , div [ class "modal-stats" ]
                 [ text (photo.user ++ " / " ++ photo.location) ]
             , div [ class "modal-comments-container" ]
-                (map modalComment photo.comments)
+                (photo.comments
+                    |> map modalComment
+                    |> append [ modalLoadMoreCommentsButton ]
+                )
             ]
         , div [ class "shadowbox", onClick ClosePhoto ] []
         ]
@@ -78,6 +82,14 @@ modalComment comment =
         ]
 
 
+modalLoadMoreCommentsButton =
+    button
+        [ class "modal-comments-load-more"
+        , onClick LoadMoreComments
+        ]
+        [ text "Load more..." ]
+
+
 update msg model =
     case msg of
         OpenPhoto photo ->
@@ -85,6 +97,14 @@ update msg model =
 
         ClosePhoto ->
             { model | openedPhoto = Nothing }
+
+        LoadMoreComments ->
+            case model.openedPhoto of
+                Nothing ->
+                    model
+
+                Just photo ->
+                    { model | openedPhoto = Just (addComment exampleComment photo) }
 
 
 stylesheet url =
