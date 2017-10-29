@@ -8145,29 +8145,85 @@ var _elm_lang$html$Html_Attributes$classList = function (list) {
 };
 var _elm_lang$html$Html_Attributes$style = _elm_lang$virtual_dom$VirtualDom$style;
 
-var _user$project$Types$exampleComment = {username: 'ZZZ', message: 'Wat'};
-var _user$project$Types$examplePhoto = {
-	username: 'qqrs',
+var _user$project$DataModel$exampleComment = {user: 'ZZZ', message: 'Wat'};
+var _user$project$DataModel$examplePhoto = {
+	user: 'qqrs',
 	location: 'BK',
-	likeCount: 3,
-	commentCount: 2,
-	comments: A2(_elm_lang$core$List$repeat, 2, _user$project$Types$exampleComment),
+	likesCount: 3,
+	commentsCount: 2,
+	comments: A2(_elm_lang$core$List$repeat, 2, _user$project$DataModel$exampleComment),
 	url: 'b.gif'
 };
-var _user$project$Types$Photo = F6(
-	function (a, b, c, d, e, f) {
-		return {url: a, username: b, location: c, likeCount: d, commentCount: e, comments: f};
-	});
-var _user$project$Types$Comment = F2(
+var _user$project$DataModel$examplePhotos = {
+	ctor: '::',
+	_0: _user$project$DataModel$examplePhoto,
+	_1: {
+		ctor: '::',
+		_0: _elm_lang$core$Native_Utils.update(
+			_user$project$DataModel$examplePhoto,
+			{url: 'pic1.jpg'}),
+		_1: {
+			ctor: '::',
+			_0: _elm_lang$core$Native_Utils.update(
+				_user$project$DataModel$examplePhoto,
+				{url: 'pic2.jpg'}),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$core$Native_Utils.update(
+					_user$project$DataModel$examplePhoto,
+					{url: 'pic3.jpg'}),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$core$Native_Utils.update(
+						_user$project$DataModel$examplePhoto,
+						{url: 'pic4.jpg'}),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$core$Native_Utils.update(
+							_user$project$DataModel$examplePhoto,
+							{url: 'pic5.jpg'}),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$core$Native_Utils.update(
+								_user$project$DataModel$examplePhoto,
+								{url: 'pic6.jpg'}),
+							_1: {ctor: '[]'}
+						}
+					}
+				}
+			}
+		}
+	}
+};
+var _user$project$DataModel$Comment = F2(
 	function (a, b) {
-		return {username: a, message: b};
+		return {user: a, message: b};
+	});
+var _user$project$DataModel$Photo = F6(
+	function (a, b, c, d, e, f) {
+		return {user: a, location: b, likesCount: c, commentsCount: d, comments: e, url: f};
 	});
 
-var _user$project$PhotoView$update = F2(
+var _user$project$Main$stylesheet = function (url) {
+	return A3(
+		_elm_lang$html$Html$node,
+		'link',
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$rel('stylesheet'),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$href(url),
+				_1: {ctor: '[]'}
+			}
+		},
+		{ctor: '[]'});
+};
+var _user$project$Main$update = F2(
 	function (msg, model) {
 		return model;
 	});
-var _user$project$PhotoView$photoView = function (photo) {
+var _user$project$Main$photoItem = function (photo) {
 	return A2(
 		_elm_lang$html$Html$div,
 		{
@@ -8185,36 +8241,64 @@ var _user$project$PhotoView$photoView = function (photo) {
 					_1: {ctor: '[]'}
 				},
 				{ctor: '[]'}),
-			_1: {ctor: '[]'}
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$div,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('photo-user'),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(photo.user),
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			}
 		});
 };
-var _user$project$PhotoView$view = function (_p0) {
-	var _p1 = _p0;
+var _user$project$Main$photoGrid = function (photos) {
 	return A2(
 		_elm_lang$html$Html$div,
 		{
 			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('photo-view'),
+			_0: _elm_lang$html$Html_Attributes$class('photo-grid'),
 			_1: {ctor: '[]'}
 		},
+		A2(_elm_lang$core$List$map, _user$project$Main$photoItem, photos));
+};
+var _user$project$Main$view = function (model) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
 		{
 			ctor: '::',
-			_0: _user$project$PhotoView$photoView(_p1.photo),
-			_1: {ctor: '[]'}
+			_0: _user$project$Main$photoGrid(model.photos),
+			_1: {
+				ctor: '::',
+				_0: _user$project$Main$stylesheet('style.css'),
+				_1: {ctor: '[]'}
+			}
 		});
 };
-var _user$project$PhotoView$model = {photo: _user$project$Types$examplePhoto};
-var _user$project$PhotoView$main = _elm_lang$html$Html$beginnerProgram(
-	{model: _user$project$PhotoView$model, view: _user$project$PhotoView$view, update: _user$project$PhotoView$update})();
-var _user$project$PhotoView$Model = function (a) {
-	return {photo: a};
+var _user$project$Main$model = {
+	photos: _user$project$DataModel$examplePhotos,
+	openedPhoto: _elm_lang$core$List$head(_user$project$DataModel$examplePhotos)
 };
-var _user$project$PhotoView$Nothing = {ctor: 'Nothing'};
+var _user$project$Main$main = _elm_lang$html$Html$beginnerProgram(
+	{model: _user$project$Main$model, view: _user$project$Main$view, update: _user$project$Main$update})();
+var _user$project$Main$Model = F2(
+	function (a, b) {
+		return {photos: a, openedPhoto: b};
+	});
+var _user$project$Main$ZZZ = {ctor: 'ZZZ'};
 
 var Elm = {};
-Elm['PhotoView'] = Elm['PhotoView'] || {};
-if (typeof _user$project$PhotoView$main !== 'undefined') {
-    _user$project$PhotoView$main(Elm['PhotoView'], 'PhotoView', undefined);
+Elm['Main'] = Elm['Main'] || {};
+if (typeof _user$project$Main$main !== 'undefined') {
+    _user$project$Main$main(Elm['Main'], 'Main', undefined);
 }
 
 if (typeof define === "function" && define['amd'])

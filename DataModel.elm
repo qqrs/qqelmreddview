@@ -40,7 +40,6 @@ exampleComment =
 examplePhotos : List Photo
 examplePhotos =
     [ examplePhoto
-    , { examplePhoto | url = "webinar-ad.png" }
     , { examplePhoto | url = "pic1.jpg" }
     , { examplePhoto | url = "pic2.jpg" }
     , { examplePhoto | url = "pic3.jpg" }

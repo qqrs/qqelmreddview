@@ -1,6 +1,7 @@
 module Main exposing (..)
 
-import List exposing (map, repeat)
+import List exposing (map, repeat, head)
+import Maybe exposing (Maybe, withDefault)
 import Html exposing (beginnerProgram)
 import Html exposing (Html, node, text, div, img)
 import Html.Attributes exposing (class, src, rel, href)
@@ -20,16 +21,23 @@ type alias Model =
 model : Model
 model =
     { photos = examplePhotos
-    , openedPhoto = Nothing
+
+    --, openedPhoto = Nothing
+    , openedPhoto = head examplePhotos
     }
 
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ photoGrid model.photos
-        , stylesheet "style.css"
-        ]
+    let
+        modalHtml =
+            model.openedPhoto |> Maybe.map photoModal |> maybeHtml
+    in
+        div []
+            [ photoGrid model.photos
+            , modalHtml
+            , stylesheet "style.css"
+            ]
 
 
 photoGrid : List Photo -> Html Msg
@@ -46,12 +54,28 @@ photoItem photo =
         ]
 
 
+photoModal : Photo -> Html Msg
+photoModal openedPhoto =
+    div []
+        [ div [ class "modal" ]
+            [ img [ src openedPhoto.url ] []
+            , div [ class "modal-user" ]
+                [ text openedPhoto.user ]
+            ]
+        , div [ class "shadowbox" ] []
+        ]
+
+
 update msg model =
     model
 
 
 stylesheet url =
     Html.node "link" [ Html.Attributes.rel "stylesheet", Html.Attributes.href url ] []
+
+
+maybeHtml html =
+    withDefault (text "") html
 
 
 main =
