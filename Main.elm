@@ -5,18 +5,22 @@ import List exposing (map, repeat, head, append)
 import Maybe exposing (Maybe, withDefault)
 import Html exposing (beginnerProgram)
 import Html exposing (Html, node, text, div, span, img, button, input)
-import Html.Attributes exposing (class, src, rel, href, placeholder)
-import Html.Events exposing (onClick, onSubmit, onInput, on, targetValue)
+import Html.Attributes exposing (class, src, rel, href, placeholder, value)
+import Html.Events exposing (onClick, onSubmit, onInput)
 import DataModel exposing (Comment, Photo, addComment, examplePhotos, exampleComment)
 import Json.Decode as Json
 
 
-type Msg
-    = OpenPhoto Photo
-    | ClosePhoto
-    | LoadMoreComments
-    | SubredditInputChange String
-    | SubredditInputSubmit
+main =
+    beginnerProgram
+        { model = model
+        , view = view
+        , update = update
+        }
+
+
+
+-- MODEL
 
 
 type alias Model =
@@ -34,6 +38,45 @@ model =
     }
 
 
+
+-- UPDATE
+
+
+type Msg
+    = OpenPhoto Photo
+    | ClosePhoto
+    | LoadMoreComments
+    | SubredditInputChange String
+    | SubredditInputSubmit
+
+
+update msg model =
+    case msg of
+        OpenPhoto photo ->
+            { model | openedPhoto = Just photo }
+
+        ClosePhoto ->
+            { model | openedPhoto = Nothing }
+
+        LoadMoreComments ->
+            case model.openedPhoto of
+                Nothing ->
+                    model
+
+                Just photo ->
+                    { model | openedPhoto = Just (addComment exampleComment photo) }
+
+        SubredditInputChange text ->
+            { model | subredditInput = text }
+
+        SubredditInputSubmit ->
+            model
+
+
+
+-- VIEW
+
+
 view : Model -> Html Msg
 view model =
     let
@@ -41,20 +84,21 @@ view model =
             model.openedPhoto |> Maybe.map photoModal |> maybeHtml
     in
         div []
-            [ searchHeader
+            [ searchHeader model.subredditInput
             , photoGrid model.photos
             , modalHtml
             , stylesheet "style.css"
             ]
 
 
-searchHeader : Html Msg
-searchHeader =
+searchHeader : String -> Html Msg
+searchHeader subredditInput =
     div [ class "header" ]
         [ input
             [ placeholder "subreddit"
             , onInput SubredditInputChange
             , onSubmit SubredditInputSubmit
+            , value subredditInput
             ]
             []
         ]
@@ -109,27 +153,8 @@ modalLoadMoreCommentsButton =
         [ text "Load more..." ]
 
 
-update msg model =
-    case msg of
-        OpenPhoto photo ->
-            { model | openedPhoto = Just photo }
 
-        ClosePhoto ->
-            { model | openedPhoto = Nothing }
-
-        LoadMoreComments ->
-            case model.openedPhoto of
-                Nothing ->
-                    model
-
-                Just photo ->
-                    { model | openedPhoto = Just (addComment exampleComment photo) }
-
-        SubredditInputChange text ->
-            { model | subredditInput = text }
-
-        SubredditInputSubmit ->
-            model
+-- VIEW HELPERS
 
 
 stylesheet url =
@@ -138,11 +163,3 @@ stylesheet url =
 
 maybeHtml html =
     withDefault (text "") html
-
-
-main =
-    beginnerProgram
-        { model = model
-        , view = view
-        , update = update
-        }
