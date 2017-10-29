@@ -1,48 +1,57 @@
 module Main exposing (..)
 
-import Types exposing (Msg, Photo, Comment, examplePhoto)
-import PhotoView exposing (photoView)
 import List exposing (map, repeat)
 import Html exposing (beginnerProgram)
 import Html exposing (Html, node, text, div, img)
 import Html.Attributes exposing (class, src, rel, href)
+import DataModel exposing (Comment, Photo, examplePhotos)
+
+
+type Msg
+    = ZZZ
 
 
 type alias Model =
-    { photos : List Photo }
+    { photos : List Photo
+    , openedPhoto : Maybe Photo
+    }
 
 
 model : Model
 model =
-    { photos = repeat 3 examplePhoto }
+    { photos = examplePhotos
+    , openedPhoto = Nothing
+    }
 
 
-photoGridView : List Photo -> Html (Msg photo)
-photoGridView photos =
-    div [ class "photo-grid" ]
-        (map photoView photos)
-
-
-view : Model -> Html (Msg photo)
+view : Model -> Html Msg
 view model =
     div []
-        [ photoGridView model.photos
-        , Html.node "link" [ Html.Attributes.rel "stylesheet", Html.Attributes.href "style.css" ] []
+        [ photoGrid model.photos
+        , stylesheet "style.css"
+        ]
+
+
+photoGrid : List Photo -> Html Msg
+photoGrid photos =
+    photos |> map photoItem |> div [ class "photo-grid" ]
+
+
+photoItem : Photo -> Html Msg
+photoItem photo =
+    div [ class "photo" ]
+        [ img [ src photo.url ] []
+        , div [ class "photo-user" ]
+            [ text photo.user ]
         ]
 
 
 update msg model =
-    case msg of
-        Types.LoadMoreComments ->
-            model
+    model
 
-        Types.OpenPhoto photo ->
-            --{ model | photoOpened = photo }
-            model
 
-        Types.ClosePhoto ->
-            --{ model | photoOpened = Nothing }
-            model
+stylesheet url =
+    Html.node "link" [ Html.Attributes.rel "stylesheet", Html.Attributes.href url ] []
 
 
 main =
