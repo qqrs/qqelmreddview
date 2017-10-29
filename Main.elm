@@ -13,7 +13,7 @@ import DataModel exposing (Comment, Photo, addComment, examplePhoto, examplePhot
 
 main =
     Html.program
-        { init = init "OldSchoolCool"
+        { init = init ""
         , view = view
         , update = update
         , subscriptions = subscriptions
