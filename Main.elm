@@ -1,21 +1,22 @@
 module Main exposing (..)
 
-import Debug exposing (log)
-import List exposing (map, repeat, head, append)
+import List exposing (map, filterMap, append)
+import String exposing (endsWith)
 import Maybe exposing (Maybe, withDefault)
-import Html exposing (beginnerProgram)
-import Html exposing (Html, node, text, div, span, img, button, input)
+import Html exposing (Html, node, text, div, span, img, form, button, input)
 import Html.Attributes exposing (class, src, rel, href, placeholder, value)
 import Html.Events exposing (onClick, onSubmit, onInput)
-import DataModel exposing (Comment, Photo, addComment, examplePhotos, exampleComment)
-import Json.Decode as Json
+import Http
+import Json.Decode as Decode
+import DataModel exposing (Comment, Photo, addComment, examplePhoto, examplePhotos, exampleComment)
 
 
 main =
-    beginnerProgram
-        { model = model
+    Html.program
+        { init = init "OldSchoolCool"
         , view = view
         , update = update
+        , subscriptions = subscriptions
         }
 
 
@@ -30,12 +31,20 @@ type alias Model =
     }
 
 
-model : Model
-model =
-    { photos = examplePhotos
-    , openedPhoto = Nothing
-    , subredditInput = "OldSchoolCool"
-    }
+init : String -> ( Model, Cmd Msg )
+init subreddit =
+    ( Model examplePhotos Nothing subreddit
+    , Cmd.none
+    )
+
+
+
+-- SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none
 
 
 
@@ -48,29 +57,50 @@ type Msg
     | LoadMoreComments
     | SubredditInputChange String
     | SubredditInputSubmit
+    | GiphyResponse (Result Http.Error String)
+    | RedditResponse (Result Http.Error (List String))
 
 
 update msg model =
     case msg of
         OpenPhoto photo ->
-            { model | openedPhoto = Just photo }
+            ( { model | openedPhoto = Just photo }
+            , Cmd.none
+            )
 
         ClosePhoto ->
-            { model | openedPhoto = Nothing }
+            ( { model | openedPhoto = Nothing }
+            , Cmd.none
+            )
 
         LoadMoreComments ->
             case model.openedPhoto of
                 Nothing ->
-                    model
+                    ( model, Cmd.none )
 
                 Just photo ->
-                    { model | openedPhoto = Just (addComment exampleComment photo) }
+                    ( { model | openedPhoto = Just (addComment exampleComment photo) }
+                    , Cmd.none
+                    )
 
         SubredditInputChange text ->
-            { model | subredditInput = text }
+            ( { model | subredditInput = text }, Cmd.none )
 
         SubredditInputSubmit ->
-            model
+            ( model, getRedditPosts model.subredditInput )
+
+        GiphyResponse _ ->
+            ( model, Cmd.none )
+
+        RedditResponse (Err err) ->
+            ( model, Cmd.none )
+
+        RedditResponse (Ok urls) ->
+            let
+                photos =
+                    getPhotosFromRedditResponse urls
+            in
+                ( { model | photos = photos }, Cmd.none )
 
 
 
@@ -94,13 +124,14 @@ view model =
 searchHeader : String -> Html Msg
 searchHeader subredditInput =
     div [ class "header" ]
-        [ input
-            [ placeholder "subreddit"
-            , onInput SubredditInputChange
-            , onSubmit SubredditInputSubmit
-            , value subredditInput
+        [ form [ onSubmit SubredditInputSubmit ]
+            [ input
+                [ placeholder "subreddit"
+                , onInput SubredditInputChange
+                , value subredditInput
+                ]
+                []
             ]
-            []
         ]
 
 
@@ -163,3 +194,51 @@ stylesheet url =
 
 maybeHtml html =
     withDefault (text "") html
+
+
+
+-- HTTP
+
+
+getRandomGif : String -> Cmd Msg
+getRandomGif topic =
+    let
+        url =
+            "https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=" ++ topic
+    in
+        Http.send GiphyResponse (Http.get url decodeGifUrl)
+
+
+decodeGifUrl : Decode.Decoder String
+decodeGifUrl =
+    Decode.at [ "data", "image_url" ] Decode.string
+
+
+getRedditPosts : String -> Cmd Msg
+getRedditPosts subreddit =
+    let
+        url =
+            "https://www.reddit.com/r/" ++ subreddit ++ ".json"
+    in
+        Http.send RedditResponse (Http.get url decodeRedditResponse)
+
+
+decodeRedditResponse : Decode.Decoder (List String)
+decodeRedditResponse =
+    Decode.at [ "data", "children" ] (Decode.list (Decode.at [ "data", "url" ] Decode.string))
+
+
+
+-- HTTP RESPONSE HANDLERS
+
+
+getPhotosFromRedditResponse : List String -> List Photo
+getPhotosFromRedditResponse urls =
+    filterMap getPhotoFromRedditUrl urls
+
+
+getPhotoFromRedditUrl url =
+    if endsWith ".jpg" url then
+        Just { examplePhoto | url = url }
+    else
+        Nothing
