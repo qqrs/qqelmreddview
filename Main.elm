@@ -5,11 +5,12 @@ import Maybe exposing (Maybe, withDefault)
 import Html exposing (beginnerProgram)
 import Html exposing (Html, node, text, div, span, img)
 import Html.Attributes exposing (class, src, rel, href)
+import Html.Events exposing (onClick)
 import DataModel exposing (Comment, Photo, examplePhotos)
 
 
 type Msg
-    = ZZZ
+    = CloseModal
 
 
 type alias Model =
@@ -58,14 +59,15 @@ photoModal : Photo -> Html Msg
 photoModal photo =
     div []
         [ div [ class "modal" ]
-            [ div [ class "closebutton" ] [ text "×" ]
+            [ div [ class "closebutton", onClick CloseModal ]
+                [ text "×" ]
             , img [ src photo.url ] []
             , div [ class "modal-stats" ]
                 [ text (photo.user ++ " / " ++ photo.location) ]
             , div [ class "modal-comments-container" ]
                 (map modalComment photo.comments)
             ]
-        , div [ class "shadowbox" ] []
+        , div [ class "shadowbox", onClick CloseModal ] []
         ]
 
 
@@ -78,7 +80,9 @@ modalComment comment =
 
 
 update msg model =
-    model
+    case msg of
+        CloseModal ->
+            { model | openedPhoto = Nothing }
 
 
 stylesheet url =
