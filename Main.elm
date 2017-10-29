@@ -10,7 +10,8 @@ import DataModel exposing (Comment, Photo, examplePhotos)
 
 
 type Msg
-    = CloseModal
+    = OpenPhoto Photo
+    | ClosePhoto
 
 
 type alias Model =
@@ -22,9 +23,7 @@ type alias Model =
 model : Model
 model =
     { photos = examplePhotos
-
-    --, openedPhoto = Nothing
-    , openedPhoto = head examplePhotos
+    , openedPhoto = Nothing
     }
 
 
@@ -49,7 +48,7 @@ photoGrid photos =
 photoItem : Photo -> Html Msg
 photoItem photo =
     div [ class "photo" ]
-        [ img [ src photo.url ] []
+        [ img [ src photo.url, onClick (OpenPhoto photo) ] []
         , div [ class "photo-user" ]
             [ text photo.user ]
         ]
@@ -59,7 +58,7 @@ photoModal : Photo -> Html Msg
 photoModal photo =
     div []
         [ div [ class "modal" ]
-            [ div [ class "closebutton", onClick CloseModal ]
+            [ div [ class "closebutton", onClick ClosePhoto ]
                 [ text "×" ]
             , img [ src photo.url ] []
             , div [ class "modal-stats" ]
@@ -67,7 +66,7 @@ photoModal photo =
             , div [ class "modal-comments-container" ]
                 (map modalComment photo.comments)
             ]
-        , div [ class "shadowbox", onClick CloseModal ] []
+        , div [ class "shadowbox", onClick ClosePhoto ] []
         ]
 
 
@@ -81,7 +80,10 @@ modalComment comment =
 
 update msg model =
     case msg of
-        CloseModal ->
+        OpenPhoto photo ->
+            { model | openedPhoto = Just photo }
+
+        ClosePhoto ->
             { model | openedPhoto = Nothing }
 
 

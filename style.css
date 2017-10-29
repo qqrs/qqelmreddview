@@ -11,6 +11,7 @@ body {
   margin: 20px 20px 20px 20px;
   padding: 10px 10px 10px 10px;
   border: 1px #aaa solid;
+  cursor: pointer;
 }
 
 .photo img {
@@ -34,9 +35,7 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   max-width: 100%;
-  width: 800px;
   max-height: 100%;
-  width: 480px;
   margin: 1px 1px 1px 1px;
   padding: 10px 10px 10px 10px;
   border: 1px #555 solid;
@@ -62,10 +61,9 @@ body {
 
 .modal img {
   display: block;
-  max-width: 100%;
-  max-height: 100%;
   width: auto;
   height: auto;
+  max-height: 480px;
 }
 
 
